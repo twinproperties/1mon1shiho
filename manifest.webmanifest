@@ -1,0 +1,9 @@
+{
+  "name": "司法書士 一問一答○×",
+  "short_name": "司法書士○×",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f6f8",
+  "theme_color": "#14243a",
+  "lang": "ja"
+}

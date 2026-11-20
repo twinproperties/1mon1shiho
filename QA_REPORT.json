@@ -1,0 +1,26 @@
+{
+  "version": "v001",
+  "rows_in_source": 240,
+  "rows_with_determinate_exam_answer": 200,
+  "rows_excluded_without_answer": 40,
+  "years": [
+    "令和7年度",
+    "令和8年度"
+  ],
+  "subjects": [
+    "不動産登記法",
+    "商業登記法"
+  ],
+  "sessions": [
+    "午後"
+  ],
+  "answer_counts": {
+    "×": 125,
+    "○": 75
+  },
+  "status_counts": {
+    "公式正解から肢別展開・根拠確認待ち": 120,
+    "予備校解答番号から肢別展開・独立した法的根拠確認待ち": 80
+  },
+  "caveat": "Branch-level correctness is expanded from answer combinations; independent legal-basis and current-law verification is incomplete."
+}

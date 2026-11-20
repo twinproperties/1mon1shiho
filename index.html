@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14243a">
+<meta name="description" content="司法書士試験の肢別○×一問一答アプリ">
+<link rel="manifest" href="manifest.webmanifest">
+<title>司法書士 一問一答○×</title>
+<style>
+:root{color-scheme:light;--ink:#172235;--muted:#697586;--line:#e2e7ed;--paper:#f4f6f8;--navy:#14243a;--green:#16834a;--red:#c43d3d}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}
+header{background:var(--navy);color:white;padding:calc(14px + env(safe-area-inset-top)) 18px 14px}
+h1{font-size:19px;margin:0;font-weight:750}header small{opacity:.78}
+main{max-width:680px;margin:0 auto;padding:16px 14px calc(24px + env(safe-area-inset-bottom))}
+.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 12px;box-shadow:0 2px 10px #14243a08}
+label{font-size:13px;color:var(--muted);display:block;margin:0 0 6px}
+select,button{font:inherit}select{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;background:white;color:var(--ink)}
+button{border:0;border-radius:13px;padding:15px 12px;font-weight:750;cursor:pointer;touch-action:manipulation}
+button:disabled{opacity:.38;cursor:default}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ok{background:#16834a;color:#fff;font-size:30px;min-height:92px}.ng{background:#c43d3d;color:#fff;font-size:30px;min-height:92px}
+.primary{background:var(--navy);color:white;width:100%}.secondary{background:#edf1f5;color:var(--ink)}
+.hidden{display:none!important}.muted{color:var(--muted);font-size:12px;line-height:1.65}
+.meta{display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:12px;margin-bottom:10px}
+.progress{height:5px;background:#e8edf1;border-radius:9px;overflow:hidden;margin:10px 0 15px}.bar{height:100%;background:var(--green);width:0}
+.stem{font-size:13px;color:var(--muted);line-height:1.7;white-space:pre-wrap;margin:0 0 10px}
+.statement{font-size:19px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 18px}
+.feedback{text-align:center;font-size:26px;font-weight:850;min-height:40px;margin:10px 0 0}
+.feedback.good{color:var(--green)}.feedback.bad{color:var(--red)}
+.smallrow{display:flex;justify-content:space-between;align-items:center;gap:8px}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:8px}
+@media(max-width:390px){.statement{font-size:17px}.panel{padding:14px}}
+</style>
+</head>
+<body>
+<header><h1>司法書士 一問一答○×</h1><small>肢を読む → ○×を押す → 自動で次へ</small></header>
+<main>
+<section id="setup" class="panel">
+  <h2 style="font-size:17px;margin:0 0 14px">学習条件</h2>
+  <label for="subject">科目</label><select id="subject"></select>
+  <div style="height:10px"></div>
+  <label for="year">年度</label><select id="year"></select>
+  <div style="height:10px"></div>
+  <label for="mode">出題方法</label>
+  <select id="mode">
+    <option value="normal">年度・問題順</option>
+    <option value="random">ランダム</option>
+    <option value="wrong">間違えた肢だけ</option>
+    <option value="favorites">お気に入りだけ</option>
+  </select>
+  <div style="height:14px"></div>
+  <button id="start" class="primary">学習開始</button>
+  <p id="counts" class="muted"></p>
+  <p class="muted">現在の収録は令和7・8年度の午後・不動産登記法／商業登記法です。未確定の肢は出題対象から除外しています。</p>
+</section>
+
+<section id="study" class="hidden">
+  <div class="smallrow" style="margin-bottom:10px">
+    <button id="home" class="secondary" style="padding:9px 12px">条件変更</button>
+    <button id="fav" class="secondary" style="padding:9px 12px">☆ お気に入り</button>
+  </div>
+  <div class="panel">
+    <div class="meta"><span id="position"></span><span id="label"></span></div>
+    <div class="progress"><div id="bar" class="bar"></div></div>
+    <div id="stem" class="stem"></div>
+    <div id="statement" class="statement"></div>
+    <div class="grid">
+      <button id="yes" class="ok">○</button>
+      <button id="no" class="ng">×</button>
+    </div>
+    <div id="feedback" class="feedback"></div>
+    <div id="status" class="muted" style="text-align:center;min-height:20px"></div>
+  </div>
+  <div class="smallrow">
+    <span id="score" class="muted"></span>
+    <button id="skip" class="secondary" style="padding:10px 14px">スキップ</button>
+  </div>
+  <p class="muted" style="text-align:center;margin-top:12px">判定は試験当時の解答番号から展開したものです。法的根拠・現行法との独立照合が未完了のデータを含みます。</p>
+</section>
+
+<section id="result" class="panel hidden">
+  <h2 style="margin:0 0 8px;font-size:18px">今回の結果</h2>
+  <div id="resultText" style="font-size:28px;font-weight:850;margin:8px 0 16px"></div>
+  <div class="grid">
+    <button id="retryWrong" class="secondary">間違えた肢を復習</button>
+    <button id="again" class="primary">同じ条件でもう一度</button>
+  </div>
+  <button id="backSetup" class="secondary" style="width:100%;margin-top:10px">条件選択へ戻る</button>
+</section>
+<section id="error" class="panel hidden"></section>
+<footer>回答履歴・お気に入りはこの端末内に保存されます。</footer>
+</main>
+<script>
+const DATA_FILE="data/items.csv";
+let all=[],deck=[],idx=0,correct=0,answered=0,wrongThis=[],lastMode="normal",busy=false;
+const $=id=>document.getElementById(id);
+const keyWrong="shoshi-ox-wrong-v1",keyFav="shoshi-ox-fav-v1",keyStats="shoshi-ox-stats-v1";
+const getSet=k=>{try{return new Set(JSON.parse(localStorage.getItem(k)||"[]"))}catch{return new Set()}};
+const putSet=(k,s)=>localStorage.setItem(k,JSON.stringify([...s]));
+function parseCSV(t){const a=[];let row=[],v="",q=false;for(let i=0;i<t.length;i++){let c=t[i],n=t[i+1];if(c==='"'&&q&&n==='"'){v+='"';i++}else if(c==='"')q=!q;else if(c===','&&!q){row.push(v);v=""}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&n==='\n')i++;row.push(v);if(row.some(x=>x!==""))a.push(row);row=[];v=""}else v+=c}if(v.length||row.length){row.push(v);a.push(row)}const h=a.shift()||[];return a.map(r=>Object.fromEntries(h.map((x,i)=>[x,r[i]??""])));}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function showError(s){$("error").classList.remove("hidden");$("error").textContent=s}
+async function init(){try{const r=await fetch(DATA_FILE+"?v=1",{cache:"no-store"});if(!r.ok)throw Error("missing");all=parseCSV((await r.text()).replace(/^\uFEFF/,"")).filter(x=>["○","×"].includes(x.answer_as_of_exam));const subs=[...new Set(all.map(x=>x.subject_id))];$("subject").innerHTML=subs.map(s=>`<option value="${esc(s)}">${esc(all.find(x=>x.subject_id===s).subject)}</option>`).join("");$("subject").addEventListener("change",fillYears);fillYears();$("counts").textContent=`出題可能：${all.length}肢／${new Set(all.map(x=>x.year)).size}年度`; }catch(e){showError("データを読み込めません。data/items.csv が配置されているか確認してください。")}}
+function fillYears(){const s=$("subject").value;const ys=[...new Set(all.filter(x=>x.subject_id===s).map(x=>x.year))].sort((a,b)=>b.localeCompare(a,"ja"));$("year").innerHTML=ys.map(y=>`<option>${esc(y)}</option>`).join("")}
+function makeDeck(mode){let a=all.filter(x=>x.subject_id===$("subject").value&&x.year===$("year").value);if(mode==="wrong"){const w=getSet(keyWrong);a=a.filter(x=>w.has(x.id))}if(mode==="favorites"){const f=getSet(keyFav);a=a.filter(x=>f.has(x.id))}if(mode==="random")a.sort(()=>Math.random()-.5);return a}
+function start(mode=$("mode").value){lastMode=mode;deck=makeDeck(mode);if(!deck.length){alert("該当する肢がありません。");return}idx=0;correct=0;answered=0;wrongThis=[];busy=false;$("setup").classList.add("hidden");$("result").classList.add("hidden");$("study").classList.remove("hidden");render()}
+function render(){const x=deck[idx];if(!x)return;$("position").textContent=`${idx+1} / ${deck.length}`;$("label").textContent=`${x.year}・${x.exam_session} 第${x.question_no}問 ${x.branch}`;$("bar").style.width=`${idx/deck.length*100}%`;$("stem").textContent=x.common_stem||"";$("statement").textContent=x.statement||"";$("feedback").textContent="";$("feedback").className="feedback";$("status").textContent="";$("yes").disabled=$("no").disabled=false;$("score").textContent=`正解 ${correct}／回答 ${answered}`;$("fav").textContent=getSet(keyFav).has(x.id)?"★ お気に入り":"☆ お気に入り"}
+function answer(mark){if(busy)return;const x=deck[idx],ok=mark===x.answer_as_of_exam;busy=true;answered++;if(ok){correct++;$("feedback").textContent="正解";$("feedback").className="feedback good";}else{$("feedback").textContent="不正解";$("feedback").className="feedback bad";$("status").textContent=`正解は ${x.answer_as_of_exam}`;wrongThis.push(x.id);const w=getSet(keyWrong);w.add(x.id);putSet(keyWrong,w)}if(ok){const w=getSet(keyWrong);w.delete(x.id);putSet(keyWrong,w)}$("yes").disabled=$("no").disabled=true;$("score").textContent=`正解 ${correct}／回答 ${answered}`;setTimeout(()=>{idx++;if(idx>=deck.length)finish();else{busy=false;render()}},520)}
+function finish(){$("study").classList.add("hidden");$("result").classList.remove("hidden");const pct=answered?Math.round(correct/answered*100):0;$("resultText").textContent=`${correct} / ${answered} 正解（${pct}%）`;$("retryWrong").disabled=wrongThis.length===0}
+function skip(){if(busy)return;idx++;if(idx>=deck.length)finish();else render()}
+$("start").onclick=()=>start();$("yes").onclick=()=>answer("○");$("no").onclick=()=>answer("×");$("skip").onclick=skip;
+$("home").onclick=()=>{$("study").classList.add("hidden");$("setup").classList.remove("hidden")};
+$("fav").onclick=()=>{const x=deck[idx],f=getSet(keyFav);if(f.has(x.id))f.delete(x.id);else f.add(x.id);putSet(keyFav,f);$("fav").textContent=f.has(x.id)?"★ お気に入り":"☆ お気に入り"};
+$("retryWrong").onclick=()=>start("wrong");$("again").onclick=()=>start(lastMode);$("backSetup").onclick=()=>{$("result").classList.add("hidden");$("setup").classList.remove("hidden")};
+init();
+if("serviceWorker" in navigator && location.protocol.startsWith("http"))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+</script>
+</body></html>
